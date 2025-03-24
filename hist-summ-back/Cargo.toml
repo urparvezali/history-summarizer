@@ -12,11 +12,11 @@ members = ["migration"]
 tokio = { version = "1.44.1", features = ["full"] }
 axum = { version = "0.8.1" }
 serde = { version = "1.0.219", features = ["derive"] }
+serde_json = "1.0.140"
 json-web-token = { version = "0.2.0" }
 dotenvy = { version = "0.15.7" }
 sea-orm = { version = "1.1.7", features = [
 	"sqlx-mysql",
 	"runtime-tokio-rustls",
-	"with-uuid",
-	"with-chrono",
 ] }
+tower-http = { version = "0.6.2", features = ["cors"] }
