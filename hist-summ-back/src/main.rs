@@ -3,6 +3,7 @@ use middlewares::authenticate;
 use sea_orm::{Database, DatabaseConnection};
 use std::sync::Arc;
 use tokio::net::TcpListener;
+use tower_cookies::CookieManagerLayer;
 use tower_http::cors::{Any, CorsLayer};
 
 pub mod entity;
@@ -10,6 +11,7 @@ pub mod middlewares;
 pub mod protected;
 pub mod routers;
 pub mod unprotected;
+pub mod utils;
 
 #[derive(Clone)]
 pub struct AppState {
@@ -40,6 +42,7 @@ async fn main() {
                 .allow_origin(Any)
                 .allow_private_network(true),
         )
+        .layer(CookieManagerLayer::new())
         .with_state(AppState { db: shared_db });
 
     axum::serve(tcp_listener, app)

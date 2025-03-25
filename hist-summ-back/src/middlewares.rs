@@ -5,8 +5,10 @@ use axum::{
     response::Response,
 };
 
+use crate::utils::decode_jwt;
+
 pub async fn authenticate(request: Request, next: Next) -> Result<Response, StatusCode> {
-    let _token = match request.headers().get(header::AUTHORIZATION) {
+    let token = match request.headers().get(header::AUTHORIZATION) {
         Some(val) => match val.to_str().unwrap().split_whitespace().nth(1) {
             Some(val) => val,
             None => return Err(StatusCode::UNAUTHORIZED),
@@ -14,7 +16,7 @@ pub async fn authenticate(request: Request, next: Next) -> Result<Response, Stat
         None => return Err(StatusCode::UNAUTHORIZED),
     };
 
-    // authentication of the token should be here..
+    let decoded = decode_jwt(&token.to_string()).await.map_err(|_| StatusCode::UNAUTHORIZED)?.claims;
 
     Ok(next.run(request).await)
 }
