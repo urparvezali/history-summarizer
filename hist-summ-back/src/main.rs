@@ -6,7 +6,7 @@ use tokio::net::TcpListener;
 use tower_cookies::CookieManagerLayer;
 use tower_http::cors::{Any, CorsLayer};
 
-pub mod entity;
+pub mod entities;
 pub mod middlewares;
 pub mod protected;
 pub mod routers;

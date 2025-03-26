@@ -1,4 +1,4 @@
-use crate::{AppState, entity::users};
+use crate::{AppState, entities::users};
 use axum::{Json, extract::State, http::StatusCode, response::IntoResponse};
 use sea_orm::{ActiveModelTrait, ActiveValue::Set};
 use serde::{Deserialize, Serialize};
@@ -23,3 +23,4 @@ pub struct SignupPayload {
     pub password: String,
     pub name: String,
 }
+

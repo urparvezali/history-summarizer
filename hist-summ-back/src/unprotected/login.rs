@@ -3,7 +3,7 @@ use sea_orm::{ColumnTrait, Condition, EntityTrait, QueryFilter};
 use serde::{Deserialize, Serialize};
 use tower_cookies::{Cookie, Cookies};
 
-use crate::{AppState, entity::users, utils::encode_jwt};
+use crate::{AppState, entities::users, utils::encode_jwt};
 
 pub async fn login(
     State(state): State<AppState>,

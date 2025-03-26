@@ -4,18 +4,18 @@ use axum::{
     routing::{get, post},
 };
 
-use crate::{unprotected::{login::login,signup::signup}, AppState};
+use crate::{
+    AppState,
+    unprotected::{login::login, refresh::refresh_rf, signup::signup},
+};
 
-
-pub fn unprotected_routers() -> Router<AppState>   {
+pub fn unprotected_routers() -> Router<AppState> {
     Router::new()
         .route("/users/signup", post(signup))
         .route("/users/login", post(login))
+        .route("/users/refresh", get(refresh_rf))
 }
 
-pub fn protected_routers() -> Router<AppState>  {
-    Router::new()
-		.route("/users/{id}", get(crate::protected::read_user::read_user))
-        // .route("/links/create_link", post(create_link))
-        // .route("/links/retrive_link_all", get(retrieve_link_all))
+pub fn protected_routers() -> Router<AppState> {
+    Router::new().route("/users/{id}", get(crate::protected::read_user::read_user))
 }

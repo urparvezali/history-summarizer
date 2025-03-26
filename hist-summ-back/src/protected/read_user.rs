@@ -5,7 +5,7 @@ use axum::{
 };
 use sea_orm::EntityTrait;
 
-use crate::{AppState, entity::users};
+use crate::{AppState, entities::users};
 
 pub async fn read_user(
     State(state): State<AppState>,

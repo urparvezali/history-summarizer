@@ -16,10 +16,10 @@ pub async fn encode_jwt(id: i64, minute: u64) -> String {
 }
 
 pub async fn decode_jwt(
-    token: &String,
+    token: &str,
 ) -> Result<jsonwebtoken::TokenData<Claim>, jsonwebtoken::errors::Error> {
     decode::<Claim>(
-        &token.as_str(),
+        token,
         &DecodingKey::from_secret(SECRET),
         &Validation::default(),
     )
