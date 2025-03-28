@@ -1,13 +1,12 @@
 
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { AuthProvider } from "./context/AuthContext";
-import ProtectedRoute from "./components/ProtectedRoute";
+import { AuthProvider, Protected } from "./context/AuthContext";
 
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
-import Profile from "./pages/Profile";
+// import Profile from "./pages/Profile";
 
 const App: React.FC = () => {
 	return (
@@ -17,14 +16,10 @@ const App: React.FC = () => {
 					<Route path="/" element={<Home />} />
 					<Route path="/login" element={<Login />} />
 					<Route path="/register" element={<Register />} />
-					<Route
-						path="/dashboard"
-						element={<ProtectedRoute><Dashboard /></ProtectedRoute>}
-					/>
-					<Route
-						path="/profile"
-						element={<ProtectedRoute><Profile /></ProtectedRoute>}
-					/>
+					<Route element={<Protected/>}>
+						<Route path="/dashboard" element={<Dashboard/>}/>
+						{/* <Route path="/profile" element={<Profile/>}/> */}
+					</Route>
 				</Routes>
 			</Router>
 		</AuthProvider>

@@ -1,21 +1,31 @@
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 
 const Login: React.FC = () => {
-	const { login } = useAuth();
+	const { id, token, login } = useAuth();
 	const navigate = useNavigate();
+	const [email, setEmail] = useState("");
+	const [password, setPassword] = useState("");
 
-	const handleLogin = () => {
-		// Simulating JWT response
-		const fakeToken = "fake-jwt-token";
-		login(fakeToken);
-		navigate("/dashboard");
+	const handle_login = async () => {
+		let res = await login(email, password);
+		if(res) navigate("/dashboard");
 	};
 
 	return (
 		<div>
-			<h2>Login</h2>
-			<button onClick={handleLogin}>Login</button>
+			<div className="box">
+				<input type="email" onChange={e => setEmail(e.target.value)} value={email} />
+			</div>
+			<div className="box">
+				<input type="password" onChange={e => setPassword(e.target.value)} value={password} />
+			</div>
+			<div className="button">
+				<button onClick={handle_login}>Login</button>
+			</div>
+			{id} <br />
+			{token}
 		</div>
 	);
 };

@@ -1,26 +1,29 @@
 use crate::{AppState, entities::users};
-use axum::{Json, extract::State, http::StatusCode, response::IntoResponse};
+use axum::{Json, extract::State, http::StatusCode};
 use sea_orm::{ActiveModelTrait, ActiveValue::Set};
 use serde::{Deserialize, Serialize};
 
 pub async fn signup(
     State(state): State<AppState>,
-    Json(user): Json<SignupPayload>,
-) -> impl IntoResponse {
+    Json(payload): Json<SignupPayload>,
+) -> Result<Json<users::Model>, StatusCode> {
+	println!("{:?}",payload.clone());
     let model = users::ActiveModel {
-        email: Set(user.email),
-        password: Set(user.password),
-        name: Set(user.name),
+        email: Set(payload.email),
+        password: Set(payload.password),
+        name: Set(payload.name),
         ..Default::default()
     };
-    let res = model.insert(state.db.as_ref()).await.unwrap();
-    (StatusCode::CREATED, Json(res))
+    let res = model
+        .insert(state.db.as_ref())
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    Ok(Json(res))
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct SignupPayload {
     pub email: String,
     pub password: String,
     pub name: String,
 }
-

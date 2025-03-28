@@ -9,7 +9,7 @@ pub async fn login(
     State(state): State<AppState>,
     cookies: Cookies,
     Json(payload): Json<LoginPayload>,
-) -> Result<String, StatusCode> {
+) -> Result<Json<IdToken>, StatusCode> {
     let res = users::Entity::find()
         .filter(
             Condition::all()
@@ -18,12 +18,14 @@ pub async fn login(
         )
         .one(state.db.as_ref())
         .await
-        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
-    if res.is_none() {
-        return Err(StatusCode::NOT_FOUND);
-    }
-    let token = encode_jwt(res.clone().unwrap().id, 1).await;
-    let refresh_token = encode_jwt(res.unwrap().id, 10).await;
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
+        .ok_or(StatusCode::NOT_FOUND)?;
+
+    let idtoken = IdToken {
+        id: res.id,
+        token: encode_jwt(res.id, 1, state.secret.as_bytes()).await,
+    };
+    let refresh_token = encode_jwt(res.id, 2, state.secret.as_bytes()).await;
 
     cookies.add(
         Cookie::build(("refresh-token", refresh_token))
@@ -32,11 +34,18 @@ pub async fn login(
             .build(),
     );
 
-    Ok(token)
+    println!("Got the token: {:?}", res.id);
+    Ok(Json(idtoken))
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 pub struct LoginPayload {
     pub email: String,
     pub password: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+pub struct IdToken {
+    pub id: i64,
+    pub token: String,
 }

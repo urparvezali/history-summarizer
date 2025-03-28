@@ -1,47 +1,122 @@
-import { createContext, useState, useContext, ReactNode } from "react";
+import { createContext, ReactNode, useContext, useState } from "react";
+import { Navigate, Outlet } from "react-router-dom";
 
-// Define authentication context types
+
 interface AuthContextType {
+	id: string | null;
 	token: string | null;
-	login: (token: string) => void;
+	login: (email: string, password: string) => Promise<boolean>;
 	logout: () => void;
+	authfetch: (url: string, options?: RequestInit) => Promise<Response>;
 }
 
-// Create Auth Context
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+const AuthContext = createContext<AuthContextType | null>(null);
 
-// AuthProvider Props
-interface AuthProviderProps {
-	children: ReactNode;
-}
-
-export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
+export const AuthProvider = ({ children }: { children: ReactNode }) => {
 	const [token, setToken] = useState<string | null>(localStorage.getItem("token"));
+	const [id, setId] = useState<string | null>(localStorage.getItem("id"));
 
-	// Login function
-	const login = (newToken: string) => {
-		localStorage.setItem("token", newToken);
-		setToken(newToken);
+	const login = async (email: string, password: string): Promise<boolean> => {
+		try {
+			const res = await fetch("http://localhost:8000/users/login", {
+				method: "POST",
+				credentials: "include",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ email, password }),
+			});
+
+			if (!res.ok) return false;
+
+			const data = await res.json();
+			localStorage.setItem("token", data.token);
+			localStorage.setItem("id", data.id);
+			setToken(data.token);
+			setId(data.id);
+			console.log(data.id)
+			return true;
+		} catch (error) {
+			console.error("Login Error:", error);
+			return false;
+		}
 	};
 
-	// Logout function
 	const logout = () => {
 		localStorage.removeItem("token");
 		setToken(null);
+		setId(null);
+	};
+
+	const refresh = async (): Promise<string | null> => {
+		try {
+			const res = await fetch("http://localhost:8000/users/refresh", {
+				method: "GET",
+				credentials: "include",
+			});
+
+			if (!res.ok) {
+				logout();
+				return null;
+			}
+
+			const data = await res.json();
+			localStorage.setItem("token", data.token);
+			localStorage.setItem("id", data.id);
+			setToken(data.token);
+			setId(data.id);
+			return data.token;
+		} catch (error) {
+			console.error("Refresh Error:", error);
+			return null;
+		}
+	};
+
+	const authfetch = async (url: string, options: RequestInit = {}): Promise<Response> => {
+		let currentToken = token;
+
+		if (!currentToken) {
+			currentToken = await refresh();
+			if (!currentToken) throw new Error("Authentication failed");
+		}
+
+		let res = await fetch(url, {
+			...options,
+			headers: {
+				...options.headers,
+				Authorization: `Bearer ${currentToken}`
+			}
+		});
+
+		if (res.status === 401) {
+			currentToken = await refresh();
+			if (!currentToken) throw new Error("Re-authentication required");
+
+			res = await fetch(url, {
+				...options,
+				headers: {
+					...options.headers,
+					Authorization: `Bearer ${currentToken}`
+				}
+			});
+		}
+
+		return res;
 	};
 
 	return (
-		<AuthContext.Provider value={{ token, login, logout }}>
+		<AuthContext.Provider value={{ id, token, login, logout, authfetch }}>
 			{children}
 		</AuthContext.Provider>
 	);
 };
 
-// Custom hook to use auth context
-export const useAuth = (): AuthContextType => {
-	const context = useContext(AuthContext);
-	if (!context) {
-		throw new Error("useAuth must be used within an AuthProvider");
-	}
-	return context;
+export const useAuth = () => {
+	const auth = useContext(AuthContext);
+	if (!auth) throw new Error("Auth not set");
+	return auth;
 };
+
+
+export const Protected = () => {
+	const { token } = useAuth();
+	return token ? <Outlet /> : <Navigate to={"/login"} />
+}
