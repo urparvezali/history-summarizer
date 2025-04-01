@@ -23,15 +23,13 @@ const Dashboard: React.FC = () => {
 			method: "GET"
 		}).then(res => {
 			if (res.status == 401 || !token) navigate("/login");
-			if (!res.ok) {
-				throw new Error("Data cant be fetched");
-			}
 			return res.json();
 		}).then(data => {
 			// set_userinfo(JSON.stringify(data));
 			set_links(data);
 		}).catch(err => {
 			console.log(`${err}`);
+			navigate("/login");
 		})
 	}, []);
 
@@ -61,7 +59,7 @@ const Dashboard: React.FC = () => {
 			}).catch(err => {
 				console.log(`${err}`);
 			})
-		}, 500);
+		}, 1);
 	}
 
 	return (

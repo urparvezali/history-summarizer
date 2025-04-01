@@ -6,7 +6,7 @@ use crate::{
     utils::{decode_jwt, encode_jwt},
 };
 
-use super::login::IdToken;
+use crate::unprotected::login::IdToken;
 
 pub async fn refresh_rt(
     State(state): State<AppState>,

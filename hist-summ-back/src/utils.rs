@@ -38,7 +38,7 @@ pub struct Claim {
     pub id: i64,
 }
 
-pub fn counter(s1: &String, s2: &String) -> usize {
+pub fn counter(s1: &str, s2: &str) -> usize {
     let st1: HashSet<&str> = s1.split_whitespace().collect();
     let st2: HashSet<&str> = s2.split_whitespace().collect();
     st1.intersection(&st2).count()
