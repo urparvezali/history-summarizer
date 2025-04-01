@@ -1,4 +1,4 @@
-/* :root {
+:root {
 	font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
 	line-height: 1.5;
 	font-weight: 400;
@@ -48,7 +48,7 @@ button {
 	transition: border-color 0.25s;
 }
 
-button:hover {
+input:hover button:hover {
 	border-color: #646cff;
 }
 
@@ -70,4 +70,16 @@ button:focus-visible {
 	button {
 		background-color: #f9f9f9;
 	}
-} */
+}
+
+input {
+	padding: 5px;
+}
+
+.searchbox {
+	padding: 5px;
+}
+
+.range {
+	padding: 5px;
+}

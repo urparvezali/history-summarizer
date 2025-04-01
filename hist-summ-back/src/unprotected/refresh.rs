@@ -8,7 +8,7 @@ use crate::{
 
 use super::login::IdToken;
 
-pub async fn refresh_rf(
+pub async fn refresh_rt(
     State(state): State<AppState>,
     cookies: Cookies,
 ) -> Result<Json<IdToken>, StatusCode> {
@@ -25,7 +25,7 @@ pub async fn refresh_rf(
             StatusCode::UNAUTHORIZED
         })?
         .claims;
-    println!("refreshed token: {}", claim.id);
+	println!("refreshed rt");
     Ok(Json(IdToken {
         id: claim.id,
         token: encode_jwt(claim.id, 2, state.secret.as_bytes()).await,

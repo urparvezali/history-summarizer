@@ -25,7 +25,7 @@ pub async fn login(
         id: res.id,
         token: encode_jwt(res.id, 1, state.secret.as_bytes()).await,
     };
-    let refresh_token = encode_jwt(res.id, 2, state.secret.as_bytes()).await;
+    let refresh_token = encode_jwt(res.id, 30, state.secret.as_bytes()).await;
 
     cookies.add(
         Cookie::build(("refresh-token", refresh_token))
@@ -33,8 +33,7 @@ pub async fn login(
             .http_only(true)
             .build(),
     );
-
-    println!("Got the token: {:?}", res.id);
+    println!("logged in");
     Ok(Json(idtoken))
 }
 

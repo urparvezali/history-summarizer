@@ -46,62 +46,48 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 			method: "POST",
 			credentials: "include",
 		}).then(res => {
-			if(!res.ok) return null;
+			if (!res.ok) return null;
 			res.ok
 		});
 		setToken(null);
 		setId(null);
 	};
 
-	const refresh = async (): Promise<string | null> => {
-		try {
-			const res = await fetch("http://localhost:8000/users/refresh", {
-				method: "GET",
-				credentials: "include",
-			});
-
-			if (!res.ok) {
-				logout();
-				return null;
-			}
-
-			const data = await res.json();
-			localStorage.setItem("token", data.token);
-			localStorage.setItem("id", data.id);
-			setToken(data.token);
-			setId(data.id);
-			return data.token;
-		} catch (error) {
-			console.error("Refresh Error:", error);
-			return null;
-		}
+	const refresh = async () => {
+		return await fetch("http://localhost:8000/users/refresh", {
+			method: "GET",
+			credentials: "include",
+		})
 	};
 
 	const authfetch = async (url: string, options: RequestInit = {}): Promise<Response> => {
-		let currentToken = token;
-
-		if (!currentToken) {
-			currentToken = await refresh();
-			if (!currentToken) throw new Error("Authentication failed");
-		}
-
 		let res = await fetch(url, {
 			...options,
 			headers: {
 				...options.headers,
-				Authorization: `Bearer ${currentToken}`
+				Authorization: `Bearer ${token}`
 			}
 		});
 
 		if (res.status === 401) {
-			currentToken = await refresh();
-			if (!currentToken) throw new Error("Re-authentication required");
+			let refresh_res = await refresh();
+			if (!refresh_res.ok) {
+				if (refresh_res.status == 401) {
+					logout();
+				}
+				return refresh_res;
+			}
+			let data = await refresh_res.json();
+			setToken(data.token);
+			localStorage.setItem("token", data.token);
+			setId(data.id);
+			localStorage.setItem("id", data.id);
 
 			res = await fetch(url, {
 				...options,
 				headers: {
 					...options.headers,
-					Authorization: `Bearer ${currentToken}`
+					Authorization: `Bearer ${data.token}`
 				}
 			});
 		}

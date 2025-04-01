@@ -1,6 +1,6 @@
 
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { AuthProvider, Protected } from "./context/AuthContext";
+import { AuthProvider, Protected } from "./context/auth";
 
 import Home from "./pages/Home";
 import Login from "./pages/Login";
@@ -16,8 +16,8 @@ const App: React.FC = () => {
 					<Route path="/" element={<Home />} />
 					<Route path="/login" element={<Login />} />
 					<Route path="/register" element={<Register />} />
-					<Route element={<Protected/>}>
-						<Route path="/dashboard" element={<Dashboard/>}/>
+					<Route path="/dashboard" element={<Dashboard />} />
+					<Route element={<Protected />}>
 						{/* <Route path="/profile" element={<Profile/>}/> */}
 					</Route>
 				</Routes>
